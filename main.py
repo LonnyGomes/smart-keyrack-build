@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
 from gpiozero import Buzzer,MotionSensor
+import time
+import board
+import neopixel
 from signal import pause
 
 # pin definitions
@@ -9,6 +12,14 @@ PIN_SOUND2=11
 PIN_SOUND3=9
 PIN_SOUND4=10
 PIN_MOTION=7
+PIN_NEOPIXELS = board.D12 # NeoPixels must be connected to D10, D12, D18 or D21 to work.
+
+# NeoPixel defintions
+NEOPIXELS_NUM = 12
+NEOPIXELS_ORDER = neopixel.GRBW
+pixels = neopixel.NeoPixel(
+    PIN_NEOPIXELS, NEOPIXELS_NUM, brightness=0.2, auto_write=False, pixel_order=NEOPIXELS_ORDER
+)
 
 # sensor input definitions
 bz1 = Buzzer(PIN_SOUND1, initial_value=True)
@@ -21,10 +32,28 @@ pir = MotionSensor(PIN_MOTION, threshold=0.5)
 #bz1.off()
 
 # funciton definions
+def pixelsTurnOff():
+    pixels.fill((0, 0, 0, 0))
+    pixels.show()
+
+def pixelsAnimate():
+    pixels.fill((0, 0, 0, 255))
+    time.sleep(1)
+    pixels.show()
+
 def onMotion(dev):
     print("Motion detected")
+    pixelsAnimate()
+
+def onMotionStop(dev):
+    print("Motion stopped")
+    pixelsTurnOff()
 
 # handlers
 pir.when_motion = onMotion
+pir.when_no_motion = onMotionStop
+
+# initialize
+pixelsTurnOff()
 
 pause()
