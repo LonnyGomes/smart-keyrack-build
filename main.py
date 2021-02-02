@@ -18,7 +18,7 @@ PIN_NEOPIXELS = board.D12 # NeoPixels must be connected to D10, D12, D18 or D21 
 NEOPIXELS_NUM = 12
 NEOPIXELS_ORDER = neopixel.GRBW
 pixels = neopixel.NeoPixel(
-    PIN_NEOPIXELS, NEOPIXELS_NUM, brightness=0.2, auto_write=False, pixel_order=NEOPIXELS_ORDER
+    PIN_NEOPIXELS, NEOPIXELS_NUM, brightness=1, auto_write=False, pixel_order=NEOPIXELS_ORDER
 )
 
 # sensor input definitions
@@ -36,14 +36,15 @@ def pixelsTurnOff():
     pixels.fill((0, 0, 0, 0))
     pixels.show()
 
-def pixelsAnimate():
-    pixels.fill((0, 0, 0, 255))
-    time.sleep(1)
-    pixels.show()
+def pixelsAnimate(pixelCount):
+    for pixelIdx in range(pixelCount):
+        pixels[pixelIdx] = (0, 0, 0, 255)
+        pixels.show()
+        time.sleep(0.05)
 
 def onMotion(dev):
     print("Motion detected")
-    pixelsAnimate()
+    pixelsAnimate(NEOPIXELS_NUM)
 
 def onMotionStop(dev):
     print("Motion stopped")
