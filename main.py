@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from gpiozero import Buzzer,MotionSensor
+from gpiozero import Button, Buzzer, MotionSensor
 import time
 import board
 import neopixel
@@ -12,6 +12,7 @@ PIN_SOUND2=11
 PIN_SOUND3=9
 PIN_SOUND4=10
 PIN_MOTION=7
+PIN_WALLET_SWITCH=21
 PIN_NEOPIXELS = board.D12 # NeoPixels must be connected to D10, D12, D18 or D21 to work.
 
 # NeoPixel defintions
@@ -29,7 +30,7 @@ bz4 = Buzzer(PIN_SOUND4, initial_value=True)
 
 pir = MotionSensor(PIN_MOTION, threshold=0.5)
 
-#bz1.off()
+walletSwitch = Button(PIN_WALLET_SWITCH)
 
 # funciton definions
 def pixelsTurnOff():
@@ -50,11 +51,20 @@ def onMotionStop(dev):
     print("Motion stopped")
     pixelsTurnOff()
 
+def walletSwitchDisengaged():
+    print("wallet switch disengaged")
+
+def walletSwitchEngaged():
+    print("wallet switch engaged")
+
 # handlers
 pir.when_motion = onMotion
 pir.when_no_motion = onMotionStop
+walletSwitch.when_pressed = walletSwitchDisengaged
+walletSwitch.when_released = walletSwitchEngaged
 
-# initialize
-pixelsTurnOff()
-
-pause()
+try:
+    pixelsTurnOff()
+    pause()
+finally:
+    pass
