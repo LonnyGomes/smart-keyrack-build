@@ -45,17 +45,26 @@ def pixelsAnimate(pixelCount):
 
 def onMotion(dev):
     print("Motion detected")
+    bz2.off()
     pixelsAnimate(NEOPIXELS_NUM)
+    time.sleep(2)
+    bz2.on()
 
 def onMotionStop(dev):
     print("Motion stopped")
+    bz3.off()
     pixelsTurnOff()
+    time.sleep(2)
+    bz3.on()
 
 def walletSwitchDisengaged():
     print("wallet switch disengaged")
 
 def walletSwitchEngaged():
     print("wallet switch engaged")
+    bz3.off()
+    time.sleep(3)
+    bz3.on()
 
 # handlers
 pir.when_motion = onMotion
