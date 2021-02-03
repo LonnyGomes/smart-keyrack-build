@@ -45,27 +45,28 @@ def pixelsAnimate(pixelCount):
 
 def onMotion(dev):
     print("Motion detected")
-    bz2.off()
-    pixelsAnimate(NEOPIXELS_NUM)
-    time.sleep(2)
-    bz2.on()
+    if walletSwitch.is_pressed:
+        bz1.off()
+        pixelsAnimate(NEOPIXELS_NUM)
+        time.sleep(2)
+        bz1.on()
 
 def onMotionStop(dev):
     print("Motion stopped")
-    bz3.off()
     pixelsTurnOff()
     time.sleep(2)
-    bz3.on()
 
 def walletSwitchDisengaged():
     print("wallet switch disengaged")
+    # don't detect motion in these cases
+    time.sleep(7)
 
 def walletSwitchEngaged():
     print("wallet switch engaged")
     pixelsAnimate(NEOPIXELS_NUM)
-    bz3.off()
+    bz2.off()
     time.sleep(3)
-    bz3.on()
+    bz2.on()
     pixelsTurnOff()
 
 # handlers
