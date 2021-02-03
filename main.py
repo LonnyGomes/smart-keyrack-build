@@ -7,13 +7,13 @@ import neopixel
 from signal import pause
 
 # pin definitions
-PIN_SOUND1=8
-PIN_SOUND2=11
-PIN_SOUND3=9
-PIN_SOUND4=10
-PIN_MOTION=7
-PIN_WALLET_SWITCH=21
-PIN_NEOPIXELS = board.D12 # NeoPixels must be connected to D10, D12, D18 or D21 to work.
+PIN_SOUND1=6
+PIN_SOUND2=13
+PIN_SOUND3=19
+PIN_SOUND4=26
+PIN_MOTION=12
+PIN_WALLET_SWITCH=20
+PIN_NEOPIXELS = board.D21 # NeoPixels must be connected to D10, D12, D18 or D21 to work.
 
 # NeoPixel defintions
 NEOPIXELS_NUM = 12
@@ -62,9 +62,11 @@ def walletSwitchDisengaged():
 
 def walletSwitchEngaged():
     print("wallet switch engaged")
+    pixelsAnimate(NEOPIXELS_NUM)
     bz3.off()
     time.sleep(3)
     bz3.on()
+    pixelsTurnOff()
 
 # handlers
 pir.when_motion = onMotion
