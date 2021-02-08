@@ -33,9 +33,11 @@ pir = MotionSensor(PIN_MOTION, threshold=0.5)
 walletSwitch = Button(PIN_WALLET_SWITCH)
 
 # funciton definions
-def pixelsTurnOff():
-    pixels.fill((0, 0, 0, 0))
-    pixels.show()
+def pixelsTurnOff(pixelCount):
+    for pixelIdx in reversed(range(pixelCount)):
+        pixels[pixelIdx] = (0, 0, 0, 0)
+        pixels.show()
+        time.sleep(0.05)
 
 def pixelsAnimate(pixelCount, rgbw = (0, 0, 0, 255)):
     for pixelIdx in range(pixelCount):
@@ -53,7 +55,7 @@ def onMotion(dev):
 
 def onMotionStop(dev):
     print("Motion stopped")
-    pixelsTurnOff()
+    pixelsTurnOff(NEOPIXELS_NUM)
     time.sleep(10)
 
 def walletSwitchDisengaged():
@@ -67,7 +69,7 @@ def walletSwitchEngaged():
     bz2.off()
     time.sleep(3)
     bz2.on()
-    pixelsTurnOff()
+    pixelsTurnOff(NEOPIXELS_NUM)
 
 # handlers
 pir.when_motion = onMotion
@@ -76,7 +78,7 @@ walletSwitch.when_pressed = walletSwitchDisengaged
 walletSwitch.when_released = walletSwitchEngaged
 
 try:
-    pixelsTurnOff()
+    pixelsTurnOff(NEOPIXELS_NUM)
     pause()
 finally:
     pass
