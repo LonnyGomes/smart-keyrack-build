@@ -5,6 +5,20 @@ import time
 import board
 import neopixel
 from signal import pause
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# IFTTT Web hook parameters
+IFTTT_BASE_WEBHOOK_URL="https://maker.ifttt.com/trigger/"
+IFTTT_WEBHOOK_KEY=os.getenv('IFTTT_WEBHOOK_KEY')
+IFTTT_EVENT_MOTION_DETECTED="key_motion_detected"
+IFTTT_MOTION_DETECTED_URL=IFTTT_BASE_WEBHOOK_URL + \
+        IFTTT_EVENT_MOTION_DETECTED + \
+        "/with/key/" + \
+        IFTTT_WEBHOOK_KEY
 
 # pin definitions
 PIN_SOUND1=6
@@ -52,6 +66,8 @@ def onMotion(dev):
         pixelsAnimate(NEOPIXELS_NUM, (255, 0, 0, 0))
         time.sleep(2)
         bz1.on()
+        # send notification off via IFTTT
+        requests.post(IFTTT_MOTION_DETECTED_URL)
 
 def onMotionStop(dev):
     print("Motion stopped")
