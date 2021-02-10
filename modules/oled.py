@@ -106,6 +106,22 @@ def clearScreen():
   myOLED = initOled()
   myOLED.clear(myOLED.PAGE)  #  Clear the display's memory (gets rid of artifacts)
 
+def showTemperature(tempVal):
+  DEG_ASCII_VAL = 248
+  myOLED = initOled()
+  myOLED.clear(myOLED.PAGE)
+  myOLED.set_font_type(3)
+  myOLED.set_cursor(0, 0)
+  myOLED.print(tempVal)
+
+  myOLED.set_font_type(0)
+  myOLED.write(248)
+  
+  myOLED.set_font_type(4)
+  myOLED.set_cursor(32, 0)
+  myOLED.print("F")
+  myOLED.display()
+
 
 #if __name__ == '__main__':
   #try:
