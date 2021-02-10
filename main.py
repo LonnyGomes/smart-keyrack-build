@@ -8,6 +8,7 @@ from signal import pause
 import requests
 import os
 from dotenv import load_dotenv
+import modules.oled as oled
 
 load_dotenv()
 
@@ -94,7 +95,11 @@ walletSwitch.when_pressed = walletSwitchDisengaged
 walletSwitch.when_released = walletSwitchEngaged
 
 try:
+    oled.clearScreen()
     pixelsTurnOff(NEOPIXELS_NUM)
     pause()
+except (KeyboardInterrupt, SystemExit) as exErr:
+    print("Closing down application")
 finally:
+    oled.clearScreen()
     pass
