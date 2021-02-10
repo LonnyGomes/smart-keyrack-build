@@ -8,7 +8,7 @@ from signal import pause
 import requests
 import os
 from dotenv import load_dotenv
-import modules.oled as oled
+from modules.OLEDDisplay import OLEDDisplay
 from modules.OpenWeather import OpenWeather
 import asyncio
 
@@ -55,6 +55,9 @@ walletSwitch = Button(PIN_WALLET_SWITCH)
 
 # init open weather API
 ow = OpenWeather(OPEN_WEATHER_KEY)
+
+# init OLED display
+oled = OLEDDisplay()
 
 # funciton definions
 def pixelsTurnOff(pixelCount):

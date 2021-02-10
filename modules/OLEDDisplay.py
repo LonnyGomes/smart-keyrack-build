@@ -42,7 +42,7 @@
 from __future__ import print_function
 import qwiic_micro_oled
 import sys
-
+import time
 
 umbrella = [ \
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
@@ -98,66 +98,61 @@ snowflake = [ \
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 ]
 
-def initOled():
-  #print("\nSparkFun Micro OLED Bitmap Example\n")
-  myOLED = qwiic_micro_oled.QwiicMicroOled()
+class OLEDDisplay:
+  def __init__(self):
+    self.myOLED = qwiic_micro_oled.QwiicMicroOled()
 
-  if not myOLED.connected:
-    print("The Qwiic Micro OLED device isn't connected to the system. Please check your connection", \
-      file=sys.stderr)
-    return
+    if not self.myOLED.connected:
+      errStr = "The Qwiic Micro OLED device isn't connected to the system. Please check your connection"
+      raise Exception(errStr)
 
-  myOLED.begin()
+    self.myOLED.begin()
 
-  return myOLED
+  def drawBitmap(self, bitmap):
+    #  Before you can start using the OLED, call begin() to init
+    #  all of the pins and configure the OLED.
 
-def drawBitmap(bitmap):
+    #  clear(ALL) will clear out the OLED's graphic memory.
+    #  clear(PAGE) will clear the Arduino's display buffer.
+    self.myOLED.clear(self.myOLED.PAGE)  #  Clear the display's memory (gets rid of artifacts)
 
-  #  These three lines of code are all you need to initialize the
-  #  OLED and print the splash screen.
+    self.myOLED.draw_bitmap(bitmap)
+    #  To actually draw anything on the display, you must call the
+    #  display() function.
+    self.myOLED.display()
 
-  #  Before you can start using the OLED, call begin() to init
-  #  all of the pins and configure the OLED.
+  def drawSnowflake(self):
+    self.drawBitmap(snowflake)
 
-  myOLED = initOled()
-  #  clear(ALL) will clear out the OLED's graphic memory.
-  #  clear(PAGE) will clear the Arduino's display buffer.
-  myOLED.clear(myOLED.PAGE)  #  Clear the display's memory (gets rid of artifacts)
+  def drawUmbrella(self):
+    self.drawBitmap(umbrella)
 
-  myOLED.draw_bitmap(bitmap)
-  #  To actually draw anything on the display, you must call the
-  #  display() function.
-  myOLED.display()
+  def clearScreen(self):
+    self.myOLED.clear(self.myOLED.PAGE)  #  Clear the display's memory (gets rid of artifacts)
+    self.myOLED.display()
 
-def drawSnowflake():
-    drawBitmap(snowflake)
+  def showTemperature(self, tempVal):
+    DEG_ASCII_VAL = 248
+    self.myOLED.clear(self.myOLED.PAGE)
+    self.myOLED.set_font_type(3)
+    self.myOLED.set_cursor(0, 0)
+    self.myOLED.print(tempVal)
 
-def drawUmbrella():
-    drawBitmap(umbrella)
+    self.myOLED.set_font_type(0)
+    self.myOLED.write(DEG_ASCII_VAL)
 
-def clearScreen():
-  myOLED = initOled()
-  myOLED.clear(myOLED.PAGE)  #  Clear the display's memory (gets rid of artifacts)
+    self.myOLED.set_font_type(4)
+    self.myOLED.set_cursor(32, 0)
+    self.myOLED.print("F")
+    self.myOLED.display()
 
-def showTemperature(tempVal):
-  DEG_ASCII_VAL = 248
-  myOLED = initOled()
-  myOLED.clear(myOLED.PAGE)
-  myOLED.set_font_type(3)
-  myOLED.set_cursor(0, 0)
-  myOLED.print(tempVal)
+if __name__ == '__main__':
+  try:
+    oled = OLEDDisplay()
+    oled.drawUmbrella()
+    time.sleep(5)
+    oled.clearScreen()
 
-  myOLED.set_font_type(0)
-  myOLED.write(248)
-  
-  myOLED.set_font_type(4)
-  myOLED.set_cursor(32, 0)
-  myOLED.print("F")
-  myOLED.display()
-
-#if __name__ == '__main__':
-  #try:
-    #runExample()
-  #except (KeyboardInterrupt, SystemExit) as exErr:
-    #print("\nEnding OLED bitmap Example")
-    #sys.exit(0)
+  except (KeyboardInterrupt, SystemExit) as exErr:
+    print("\nEnding OLED bitmap Example")
+    sys.exit(0)
