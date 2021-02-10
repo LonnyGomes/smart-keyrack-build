@@ -9,6 +9,8 @@ import requests
 import os
 from dotenv import load_dotenv
 import modules.oled as oled
+from modules.OpenWeather import OpenWeather
+import asyncio
 
 load_dotenv()
 
@@ -20,6 +22,10 @@ IFTTT_MOTION_DETECTED_URL=IFTTT_BASE_WEBHOOK_URL + \
         IFTTT_EVENT_MOTION_DETECTED + \
         "/with/key/" + \
         IFTTT_WEBHOOK_KEY
+
+# OpenWeather parameters
+OPEN_WEATHER_KEY=os.getenv('OPEN_WEATHER_KEY')
+OPEN_WEATHER_CITY_ID=os.getenv('OPEN_WEATHER_CITY_ID')
 
 # pin definitions
 PIN_SOUND1=6
@@ -47,6 +53,9 @@ pir = MotionSensor(PIN_MOTION, threshold=0.5)
 
 walletSwitch = Button(PIN_WALLET_SWITCH)
 
+# init open weather API
+ow = OpenWeather(OPEN_WEATHER_KEY)
+
 # funciton definions
 def pixelsTurnOff(pixelCount):
     for pixelIdx in reversed(range(pixelCount)):
@@ -62,6 +71,7 @@ def pixelsAnimate(pixelCount, rgbw = (0, 0, 0, 255)):
 
 def onMotion(dev):
     print("Motion detected")
+
     if walletSwitch.is_pressed:
         bz1.off()
         pixelsAnimate(NEOPIXELS_NUM, (255, 0, 0, 0))
@@ -69,6 +79,10 @@ def onMotion(dev):
         bz1.on()
         # send notification off via IFTTT
         requests.post(IFTTT_MOTION_DETECTED_URL)
+
+    weather = ow.getCurWeather(OPEN_WEATHER_CITY_ID)
+    temperature = round(weather['temp'])
+    asyncio.run(displayWeather(temperature))
 
 def onMotionStop(dev):
     print("Motion stopped")
@@ -87,6 +101,12 @@ def walletSwitchEngaged():
     time.sleep(3)
     bz2.on()
     pixelsTurnOff(NEOPIXELS_NUM)
+
+async def displayWeather(temperatureVal):
+    oled.showTemperature(temperatureVal)
+    # keep the value on the screen for a set amount of time
+    await asyncio.sleep(15)
+    oled.clearScreen()
 
 # handlers
 pir.when_motion = onMotion
