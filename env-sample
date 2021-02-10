@@ -1,1 +1,3 @@
 IFTTT_WEBHOOK_KEY=webhook-key
+OPEN_WEATHER_KEY=openweather-key
+OPEN_WEATHER_CITY_ID=openweather-city-id
