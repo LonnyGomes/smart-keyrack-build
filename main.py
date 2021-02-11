@@ -14,6 +14,8 @@ import asyncio
 
 load_dotenv()
 
+OLED_SCREEN_TIMEOUT=15
+
 # IFTTT Web hook parameters
 IFTTT_BASE_WEBHOOK_URL="https://maker.ifttt.com/trigger/"
 IFTTT_WEBHOOK_KEY=os.getenv('IFTTT_WEBHOOK_KEY')
@@ -84,8 +86,17 @@ def onMotion(dev):
         requests.post(IFTTT_MOTION_DETECTED_URL)
 
     weather = ow.getCurWeather(OPEN_WEATHER_CITY_ID)
-    temperature = round(weather['temp'])
-    asyncio.run(displayWeather(temperature))
+
+    if weather['isSnow']:
+        # show a snowflake if it's snowing
+        asyncio.run(displaySnowflake())
+    elif weather['isRain']:
+        # show an umbrella if it's raining
+        asyncio.run(displayUmbrella())
+    else:
+        # if not raining or snowing, show cur outisde temp
+        temperature = round(weather['temp'])
+        asyncio.run(displayWeather(temperature))
 
 def onMotionStop(dev):
     print("Motion stopped")
@@ -108,7 +119,19 @@ def walletSwitchEngaged():
 async def displayWeather(temperatureVal):
     oled.showTemperature(temperatureVal)
     # keep the value on the screen for a set amount of time
-    await asyncio.sleep(15)
+    await asyncio.sleep(OLED_SCREEN_TIMEOUT)
+    oled.clearScreen()
+
+async def displaySnowflake():
+    oled.drawSnowflake()
+    # keep the value on the screen for a set amount of time
+    await asyncio.sleep(OLED_SCREEN_TIMEOUT)
+    oled.clearScreen()
+
+async def displayUmbrella():
+    oled.drawUmbrella()
+    # keep the value on the screen for a set amount of time
+    await asyncio.sleep(OLED_SCREEN_TIMEOUT)
     oled.clearScreen()
 
 # handlers
