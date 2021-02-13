@@ -2,15 +2,16 @@
 
 from gpiozero import Button, Buzzer, MotionSensor
 import time
-import board
-import neopixel
 from signal import pause
 import requests
 import os
 from dotenv import load_dotenv
+import asyncio
+
+# internal module imports
 from modules.OLEDDisplay import OLEDDisplay
 from modules.OpenWeather import OpenWeather
-import asyncio
+from modules.NeoPixels import NeoPixels
 
 load_dotenv()
 
@@ -36,13 +37,14 @@ PIN_SOUND3=19
 PIN_SOUND4=26
 PIN_MOTION=12
 PIN_WALLET_SWITCH=20
-PIN_NEOPIXELS = board.D21 # NeoPixels must be connected to D10, D12, D18 or D21 to work.
 
 # NeoPixel defintions
+# NeoPixels must be connected to D10, D12, D18 or D21 to work.
+PIN_NEOPIXELS = NeoPixels.D21
 NEOPIXELS_NUM = 12
-NEOPIXELS_ORDER = neopixel.GRBW
-pixels = neopixel.NeoPixel(
-    PIN_NEOPIXELS, NEOPIXELS_NUM, brightness=1, auto_write=False, pixel_order=NEOPIXELS_ORDER
+NEOPIXELS_ORDER = NeoPixels.GRBW
+pixels = NeoPixels(
+    PIN_NEOPIXELS, NEOPIXELS_NUM, NEOPIXELS_ORDER
 )
 
 # sensor input definitions
@@ -62,24 +64,12 @@ ow = OpenWeather(OPEN_WEATHER_KEY)
 oled = OLEDDisplay()
 
 # funciton definions
-def pixelsTurnOff(pixelCount):
-    for pixelIdx in reversed(range(pixelCount)):
-        pixels[pixelIdx] = (0, 0, 0, 0)
-        pixels.show()
-        time.sleep(0.05)
-
-def pixelsAnimate(pixelCount, rgbw = (0, 0, 0, 255)):
-    for pixelIdx in range(pixelCount):
-        pixels[pixelIdx] = rgbw
-        pixels.show()
-        time.sleep(0.05)
-
 def onMotion(dev):
     print("Motion detected")
 
     if walletSwitch.is_pressed:
         bz1.off()
-        pixelsAnimate(NEOPIXELS_NUM, (255, 0, 0, 0))
+        pixels.animateOn((255, 0, 0, 0))
         time.sleep(2)
         bz1.on()
         # send notification off via IFTTT
@@ -100,7 +90,7 @@ def onMotion(dev):
 
 def onMotionStop(dev):
     print("Motion stopped")
-    pixelsTurnOff(NEOPIXELS_NUM)
+    pixels.animateOff()
     time.sleep(10)
 
 def walletSwitchDisengaged():
@@ -110,11 +100,11 @@ def walletSwitchDisengaged():
 
 def walletSwitchEngaged():
     print("wallet switch engaged")
-    pixelsAnimate(NEOPIXELS_NUM)
+    pixels.animateOn()
     bz2.off()
     time.sleep(3)
     bz2.on()
-    pixelsTurnOff(NEOPIXELS_NUM)
+    pixels.animateOff()
 
 async def displayWeather(temperatureVal):
     oled.showTemperature(temperatureVal)
@@ -142,7 +132,7 @@ walletSwitch.when_released = walletSwitchEngaged
 
 try:
     oled.clearScreen()
-    pixelsTurnOff(NEOPIXELS_NUM)
+    pixels.animateOff()
     pause()
 except (KeyboardInterrupt, SystemExit) as exErr:
     print("Closing down application")
