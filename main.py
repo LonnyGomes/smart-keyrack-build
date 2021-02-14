@@ -22,9 +22,9 @@ IFTTT_BASE_WEBHOOK_URL="https://maker.ifttt.com/trigger/"
 IFTTT_WEBHOOK_KEY=os.getenv('IFTTT_WEBHOOK_KEY')
 IFTTT_EVENT_MOTION_DETECTED="key_motion_detected"
 IFTTT_MOTION_DETECTED_URL=IFTTT_BASE_WEBHOOK_URL + \
-        IFTTT_EVENT_MOTION_DETECTED + \
-        "/with/key/" + \
-        IFTTT_WEBHOOK_KEY
+    IFTTT_EVENT_MOTION_DETECTED + \
+    "/with/key/" + \
+    IFTTT_WEBHOOK_KEY
 
 # OpenWeather parameters
 OPEN_WEATHER_KEY=os.getenv('OPEN_WEATHER_KEY')
@@ -44,7 +44,7 @@ PIN_NEOPIXELS = NeoPixels.D21
 NEOPIXELS_NUM = 12
 NEOPIXELS_ORDER = NeoPixels.GRBW
 pixels = NeoPixels(
-    PIN_NEOPIXELS, NEOPIXELS_NUM, NEOPIXELS_ORDER
+  PIN_NEOPIXELS, NEOPIXELS_NUM, NEOPIXELS_ORDER
 )
 
 # sensor input definitions
@@ -55,7 +55,7 @@ bz4 = Buzzer(PIN_SOUND4, initial_value=True)
 
 pir = MotionSensor(PIN_MOTION, threshold=0.5)
 
-walletSwitch = Button(PIN_WALLET_SWITCH)
+keyRackSwitch = Button(PIN_WALLET_SWITCH)
 
 # init open weather API
 ow = OpenWeather(OPEN_WEATHER_KEY)
@@ -65,77 +65,77 @@ oled = OLEDDisplay()
 
 # funciton definions
 def onMotion(dev):
-    print("Motion detected")
+  print("Motion detected")
 
-    if walletSwitch.is_pressed:
-        bz1.off()
-        pixels.animateOn((255, 0, 0, 0))
-        time.sleep(2)
-        bz1.on()
-        # send notification off via IFTTT
-        requests.post(IFTTT_MOTION_DETECTED_URL)
+  if keyRackSwitch.is_pressed:
+    bz1.off()
+    pixels.animateOn((255, 0, 0, 0))
+    time.sleep(2)
+    bz1.on()
+    # send notification off via IFTTT
+    requests.post(IFTTT_MOTION_DETECTED_URL)
 
-    weather = ow.getCurWeather(OPEN_WEATHER_CITY_ID)
+  weather = ow.getCurWeather(OPEN_WEATHER_CITY_ID)
 
-    if weather['isSnow']:
-        # show a snowflake if it's snowing
-        asyncio.run(displaySnowflake())
-    elif weather['isRain']:
-        # show an umbrella if it's raining
-        asyncio.run(displayUmbrella())
-    else:
-        # if not raining or snowing, show cur outisde temp
-        temperature = round(weather['temp'])
-        asyncio.run(displayWeather(temperature))
+  if weather['isSnow']:
+    # show a snowflake if it's snowing
+    asyncio.run(displaySnowflake())
+  elif weather['isRain']:
+    # show an umbrella if it's raining
+    asyncio.run(displayUmbrella())
+  else:
+    # if not raining or snowing, show cur outisde temp
+    temperature = round(weather['temp'])
+    asyncio.run(displayWeather(temperature))
 
 def onMotionStop(dev):
-    print("Motion stopped")
-    pixels.animateOff()
-    time.sleep(10)
+  print("Motion stopped")
+  pixels.animateOff()
+  time.sleep(10)
 
-def walletSwitchDisengaged():
-    print("wallet switch disengaged")
-    # don't detect motion in these cases
-    time.sleep(7)
+def keyRackSwitchDisengaged():
+  print("key rack switch disengaged")
+  # don't detect motion in these cases
+  time.sleep(7)
 
-def walletSwitchEngaged():
-    print("wallet switch engaged")
-    pixels.animateOn()
-    bz2.off()
-    time.sleep(3)
-    bz2.on()
-    pixels.animateOff()
+def keyRackSwitchEngaged():
+  print("key rack switch engaged")
+  pixels.animateOn()
+  bz2.off()
+  time.sleep(3)
+  bz2.on()
+  pixels.animateOff()
 
 async def displayWeather(temperatureVal):
-    oled.showTemperature(temperatureVal)
-    # keep the value on the screen for a set amount of time
-    await asyncio.sleep(OLED_SCREEN_TIMEOUT)
-    oled.clearScreen()
+  oled.showTemperature(temperatureVal)
+  # keep the value on the screen for a set amount of time
+  await asyncio.sleep(OLED_SCREEN_TIMEOUT)
+  oled.clearScreen()
 
 async def displaySnowflake():
-    oled.drawSnowflake()
-    # keep the value on the screen for a set amount of time
-    await asyncio.sleep(OLED_SCREEN_TIMEOUT)
-    oled.clearScreen()
+  oled.drawSnowflake()
+  # keep the value on the screen for a set amount of time
+  await asyncio.sleep(OLED_SCREEN_TIMEOUT)
+  oled.clearScreen()
 
 async def displayUmbrella():
-    oled.drawUmbrella()
-    # keep the value on the screen for a set amount of time
-    await asyncio.sleep(OLED_SCREEN_TIMEOUT)
-    oled.clearScreen()
+  oled.drawUmbrella()
+  # keep the value on the screen for a set amount of time
+  await asyncio.sleep(OLED_SCREEN_TIMEOUT)
+  oled.clearScreen()
 
 # handlers
 pir.when_motion = onMotion
 pir.when_no_motion = onMotionStop
-walletSwitch.when_pressed = walletSwitchDisengaged
-walletSwitch.when_released = walletSwitchEngaged
+keyRackSwitch.when_pressed = keyRackSwitchDisengaged
+keyRackSwitch.when_released = keyRackSwitchEngaged
 
 try:
-    oled.clearScreen()
-    pixels.animateOff()
-    pause()
+  oled.clearScreen()
+  pixels.animateOff()
+  pause()
 except (KeyboardInterrupt, SystemExit) as exErr:
-    print("Closing down application")
+  print("Closing down application")
 finally:
-    oled.clearScreen()
-    pass
+  oled.clearScreen()
+  pass
